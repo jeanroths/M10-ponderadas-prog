@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  
+  async1:
+    image: python:3.8-alpine
+    container_name: async-fast
+    volumes:
+      - ./:/app_fastAPI
+    command: sh -c 
+            "
+            cd /app_fastAPI &&
+            python3 -m pip install -r requirements.txt &&
+            cd app_fastAPI &&
+            python3 main.py
+            "
+
+  async2:
+    image: python:3.8-alpine
+    container_name: async-hedgehog
+    volumes:
+      - ./:/app_Sanic
+    command: sh -c 
+            "
+            cd /app_Sanic &&
+            python3 -m pip install -r requirements.txt &&
+            cd app_Sanic &&
+            python3 main.py
+            "
