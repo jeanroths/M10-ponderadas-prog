@@ -11,3 +11,4 @@ pydantic[email]
 python-decouple
 aiosqlite
 uvicorn
+sanic[ext]

@@ -1,0 +1,246 @@
+openapi: 3.0.0
+info:
+  title: API de Gerenciamento de Usuários e Tarefas
+  description: Esta é uma API para gerenciar usuários e suas tarefas.
+  version: "1.0.0"
+servers:
+  - url: 'http://localhost:8000'
+    description: API local
+
+paths:
+  /users/signup:
+    post:
+      summary: Cria um novo usuário
+      operationId: createUser
+      tags:
+        - Usuários
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSchema'
+      responses:
+        '200':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+        '400':
+          description: Falha ao criar o usuário
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+
+  /users/login:
+    post:
+      summary: Loga um usuário existente
+      operationId: loginUser
+      tags:
+        - Usuários
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSchema'
+      responses:
+        '200':
+          description: Usuário logado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+        '401':
+          description: Usuário ou senha inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+
+  /users/{id}:
+    get:
+      summary: Obtém um usuário pelo ID
+      operationId: getUserById
+      tags:
+        - Usuários
+      parameters:
+        - name: id
+          in: path
+          description: ID do usuário a ser obtido
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Dados do usuário obtidos com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSchema'
+        '404':
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+
+  /users/delete/{id}:
+    delete:
+      summary: Deleta um usuário pelo ID
+      operationId: deleteUserById
+      tags:
+        - Usuários
+      parameters:
+        - name: id
+          in: path
+          description: ID do usuário a ser deletado
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Usuário deletado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'ok'
+        '404':
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+                
+  /todo:
+    post:
+      summary: Cria uma nova tarefa
+      operationId: createTodo
+      tags:
+        - Tarefas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ToDoSchema'
+      responses:
+        '201':
+          description: Tarefa criada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToDoSchema'
+        '400':
+          description: Falha ao criar a tarefa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+
+  /todo/{id}:
+    put:
+      summary: Atualiza uma tarefa pelo ID
+      operationId: updateTodoById
+      tags:
+        - Tarefas
+      parameters:
+        - name: id
+          in: path
+          description: ID da tarefa a ser atualizada
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ToDoSchema'
+      responses:
+        '200':
+          description: Tarefa atualizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToDoSchema'
+        '404':
+          description: Tarefa não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+
+  /todo/delete/{id}:
+    delete:
+      summary: Deleta uma tarefa pelo ID
+      operationId: deleteTodoById
+      tags:
+        - Tarefas
+      parameters:
+        - name: id
+          in: path
+          description: ID da tarefa a ser deletada
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tarefa deletada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'ok'
+        '404':
+          description: Tarefa não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+
+components:
+  schemas:
+    UserSchema:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: senha123
+    ToDoSchema:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Comprar leite
+        content:
+          type: string
+          example: Comprar 2 litros de leite desnatado no mercado
+    ErrorModel:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Erro desconhecido
