@@ -1,0 +1,3 @@
+.env
+*/__pycache__
+/app_fastAPI/__pycache__
