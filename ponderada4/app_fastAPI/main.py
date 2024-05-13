@@ -12,27 +12,15 @@ import uvicorn
 app = FastAPI(title="API Rest nivel 2")
 
 async def check_user(data: UserSchema):
-    try:
-        if not database.is_connected:
-            await database.connect()
-
-        # Busca um usuário específico com o e-mail fornecido
-        user = await User.objects.get(email=data.email)
-
-        # Verifica se o usuário foi encontrado e se a senha corresponde
-        if user and user.password == data.password:
+    if not database.is_connected:
+        await database.connect()
+    users = await User.objects.all()
+    for user in users:
+        if user.email == data.email and user.password == data.password:
             return True
-        else:
-            return False
+    return False
 
-    except Exception as e:
-        # Lidar com exceções, como falha na conexão com o banco de dados
-        print(f"Erro durante a verificação do usuário: {e}")
-        print(e)
-        return False
-
-
-
+    
 @app.get("/")
 async def read_root():
     return await ToDo.objects.all()
@@ -61,17 +49,11 @@ async def create_user(user: UserSchema = Body(default=None)):
 
 @app.post("/users/login", tags=["users"])
 async def user_login(user: UserSchema = Body(default=None)):
-    try:
-        print("Dados recebidos do Flutter:")
-        print(f"Email: {user.email}")
-        print(f"Password: {user.password}")
+    if await check_user(user):
+        return signJWT(user.email)
+    raise HTTPException(status_code=404, detail=f"{user.email} não encontrado")
+        
 
-        if await check_user(user):
-            return signJWT(user.email)
-    except Exception as e:
-        print(f"Erro durante o login: {e}")
-
-    return {"error": "Usuário ou senha inválidos"}
         
     
 

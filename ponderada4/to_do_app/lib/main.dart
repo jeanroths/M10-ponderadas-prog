@@ -44,10 +44,6 @@ class _LoginPageState extends State<LoginPage> {
 
     final jsonData = jsonEncode(data);    
 
-    print('Dados do corpo da requisição:');
-    print('Email: $email');
-    print('Password: $password');
-
     final response = await http.post(
       Uri.parse('http://192.168.110.237:8000/users/login'),
       headers: <String, String>{
@@ -64,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Login falhou'),
+          content: Text('Usuario nao encontrado, cadastre-se em "Sign Up"'),
         ),
       );
     }
@@ -82,10 +78,6 @@ class _LoginPageState extends State<LoginPage> {
 
       // Converta o mapa para uma string JSON
     final jsonData = jsonEncode(data);
-
-    print('Dados do corpo da requisição:');
-    print('Email: $email');
-    print('Password: $password');
 
     final response = await http.post(
       Uri.parse('http://192.168.110.237:8000/users/signup'),
