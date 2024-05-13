@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class SecondScreen extends StatefulWidget {
   const SecondScreen({Key? key}) : super(key: key);
@@ -9,6 +11,72 @@ class SecondScreen extends StatefulWidget {
 
 class _SecondScreenState extends State<SecondScreen> {
   List<Task> tasks = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchTasks();
+  }
+
+  Future<void> fetchTasks() async {
+    final response = await http.get(Uri.parse('http://192.168.110.237:8000/'));
+    if (response.statusCode == 200) {
+      final List<dynamic> responseData = json.decode(response.body);
+      setState(() {
+        tasks = responseData.map((data) => Task.fromJson(data)).toList();
+      });
+    } else {
+      throw Exception('Failed to load tasks');
+    }
+  }
+
+  Future<void> addTask(String title, String content) async {
+    final response = await http.post(
+      Uri.parse('http://192.168.110.237:8000/todo'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'title': title,
+        'content': content,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      fetchTasks();
+    } else {
+        throw Exception('Failed to add task');
+    }
+  }
+
+  Future<void> updateTask(int id, String title, String content) async {
+    final response = await http.put(
+      Uri.parse('http://192.168.110.237:8000/todo/update/$id'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'title': title,
+        'content': content,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      fetchTasks();
+    } else {
+      throw Exception('Failed to update task');
+    }
+  }
+
+  Future<void> deleteTask(int id) async {
+    final response = await http.delete(Uri.parse('http://192.168.110.237:8000/todo/delete/$id'));
+
+    if (response.statusCode == 200) {
+      fetchTasks();
+    } else {
+      throw Exception('Failed to delete task');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,10 +132,7 @@ class _SecondScreenState extends State<SecondScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                setState(() {
-                  tasks.add(Task(title: title, content: content));
-                });
-                Navigator.pop(context);
+                addTask(title, content).then((_) => Navigator.pop(context));
               },
               child: const Text('Add'),
             ),
@@ -108,19 +173,13 @@ class _SecondScreenState extends State<SecondScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                setState(() {
-                  tasks[index] = Task(title: title, content: content);
-                });
-                Navigator.pop(context);
+                updateTask(tasks[index].id, title, content).then((_) => Navigator.pop(context));
               },
               child: const Text('Save'),
             ),
             TextButton(
               onPressed: () {
-                setState(() {
-                  tasks.removeAt(index);
-                });
-                Navigator.pop(context);
+                deleteTask(tasks[index].id).then((_) => Navigator.pop(context));
               },
               child: const Text('Delete'),
             ),
@@ -132,10 +191,19 @@ class _SecondScreenState extends State<SecondScreen> {
 }
 
 class Task {
+  final int id;
   final String title;
   final String content;
 
-  Task({required this.title, required this.content});
+  Task({required this.id, required this.title, required this.content});
+
+  factory Task.fromJson(Map<String, dynamic> json) {
+    return Task(
+      id: json['id'],
+      title: json['title'],
+      content: json['content'],
+    );
+  }
 }
 
 class TaskCard extends StatelessWidget {

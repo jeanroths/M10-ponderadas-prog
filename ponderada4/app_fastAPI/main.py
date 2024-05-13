@@ -1,6 +1,6 @@
 # app/main.py
 
-from fastapi import FastAPI, Body, Depends
+from fastapi import FastAPI, Body, Depends, HTTPException, Path
 from auth.jwt_handler import signJWT
 from auth.jwt_bearer import jwtBearer
 
@@ -11,10 +11,19 @@ import uvicorn
 
 app = FastAPI(title="API Rest nivel 2")
 
+async def check_user(data: UserSchema):
+    if not database.is_connected:
+        await database.connect()
+    users = await User.objects.all()
+    for user in users:
+        if user.email == data.email and user.password == data.password:
+            return True
+    return False
 
+    
 @app.get("/")
 async def read_root():
-    return await User.objects.all()
+    return await ToDo.objects.all()
 
 @app.get("/users/", tags=["users"])
 async def read_user(id: int):
@@ -40,34 +49,47 @@ async def create_user(user: UserSchema = Body(default=None)):
 
 @app.post("/users/login", tags=["users"])
 async def user_login(user: UserSchema = Body(default=None)):
-    if check_user(user):
+    if await check_user(user):
         return signJWT(user.email)
-    return {"error": "Usuário ou senha inválidos"}
+    raise HTTPException(status_code=404, detail=f"{user.email} não encontrado")
+        
+
         
     
 
-@app.post("/todo", tags=["todo"], dependencies=[Depends(jwtBearer())])
+@app.post("/todo", tags=["todo"]) #, dependencies=[Depends(jwtBearer())])
 async def create_todo(todo: ToDoSchema):
     if not database.is_connected:
         await database.connect()
     return await ToDo.objects.create(
         title=todo.title,
-        content=todo.content,
-        user_id=todo.user_id
+        content=todo.content
+        #user_id=todo.user_id
     )
 
-@app.put("/todo/update", tags=["todo"], dependencies=[Depends(jwtBearer())])
-async def update_todo(todo: ToDoSchema):
+
+@app.put("/todo/update/{id}", tags=["todo"])
+async def update_todo(id: int, todo: ToDoSchema):
     if not database.is_connected:
         await database.connect()
-    return await ToDo.objects.update_or_create(
-        id=todo.id,
-        title=todo.title,
-        content=todo.content,
-        user_id=todo.user_id
-    )
-    
-@app.delete("/todo/delete/{id}", tags=["todo"], dependencies=[Depends(jwtBearer())])
+    try:
+        # Tenta encontrar a tarefa com o ID especificado
+        task = await ToDo.objects.get_or_none(id=id)
+        if task:
+            # Atualiza os campos de título e conteúdo
+            task.title = todo.title
+            task.content = todo.content
+            await task.update()
+            return {"message": "Task updated successfully"}
+        else:
+            # Se a tarefa não for encontrada, levanta uma exceção
+            raise HTTPException(status_code=404, detail=f"Task with id {id} not found")
+    except Exception as e:
+        # Se ocorrer qualquer outra exceção, levanta uma exceção HTTP 404 com detalhes
+        print("Error:", e)
+        raise HTTPException(status_code=404, detail=f"Task with id {id} not found")
+
+@app.delete("/todo/delete/{id}", tags=["todo"])#, dependencies=[Depends(jwtBearer())])
 async def delete_todo(id: int):
     if not database.is_connected:
         await database.connect()
@@ -78,17 +100,6 @@ async def delete_user(id: int):
     if not database.is_connected:
         await database.connect()
     return await User.objects.delete(id=id)
-
-
-async def check_user(data:UserSchema):
-    if not database.is_connected:
-        await database.connect()
-    users = await User.objects.all()
-    for user in users:
-        if user.email == data.email and user.password == data.password:
-            return True
-    return False
-
 
 
 @app.on_event("startup")
