@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_app/controllers/login_controller.dart';
-import 'package:image_app/views/image_upload_page.dart';
+import 'package:image_app/views/image_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -20,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
     if (success) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const ImageUploadPage()),
+        MaterialPageRoute(builder: (context) => const ImagePage()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

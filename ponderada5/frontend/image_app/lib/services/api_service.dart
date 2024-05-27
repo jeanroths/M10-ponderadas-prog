@@ -1,8 +1,10 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io';
 
 class ApiService {
   static const String baseUrl = 'http://192.168.118.237:8000';
+  static const String imageUrl = 'http://192.168.118.237:8001';
 
   static Future<http.Response> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/users/login');
@@ -34,9 +36,13 @@ class ApiService {
     return response;
   }
 
+
+  static Future<http.Response> uploadImage(File imageFile) async {
+    final url = Uri.parse('$imageUrl/images/upload');
+    final request = http.MultipartRequest('POST', url);
+    request.files.add(await http.MultipartFile.fromPath('image', imageFile.path));
+
+    final response = await request.send();
+    return await http.Response.fromStream(response);
+  }
 }
-//   static Future<http.Response> uploadImage(/* Image file */) async {
-//     final url = Uri.parse('$baseUrl/images/upload');
-//     // Implement the logic to upload the image file
-//   }
-// }
