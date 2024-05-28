@@ -1,5 +1,12 @@
+import '../services/notification_service.dart';
+
 class NotificationController {
-  static void notifyImageProcessed() {
-    // Implement the logic to notify the user that the image has been processed
+  final NotificationService _notificationService = NotificationService();
+
+  void notifyImageProcessed() {
+    _notificationService.showNotification(
+      'Imagem Processada',
+      'Sua imagem foi processada com sucesso.',
+    );
   }
 }

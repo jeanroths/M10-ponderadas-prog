@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:image_app/views/login_page.dart';
+import 'views/login_page.dart';
+import 'services/notification_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  NotificationService().initializeNotifications();
+  await NotificationService().requestNotificationPermissions();
   runApp(const MyApp());
 }
 
