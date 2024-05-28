@@ -1,18 +1,19 @@
 version: '3.8'
 
 services:
-  
-  async1:
-    image: python:3.8-alpine
-    container_name: async-fast
-    volumes:
-      - ./:/app_fastAPI
+  login:
+    build:
+      context: ./app_login_log
     ports:
-      - "8000:8000"
-    command: sh -c 
-            "
-            cd /app_fastAPI &&
-            python3 -m pip install -r requirements.txt &&
-            cd app_fastAPI &&
-            python3 main.py
-            "
+      - "8000:8001"
+
+  images:
+    build:
+      context: ./app_envio_imagens
+    ports:
+      - "8000:8002"
+
+  gateway:
+    build: ./nginx
+    ports:
+      - "8000:80"
