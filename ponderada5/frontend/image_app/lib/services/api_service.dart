@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 class ApiService {
-  static const String baseUrl = 'http://192.168.118.237:8000';
-  static const String imageUrl = 'http://192.168.118.237:8001';
+  static const String baseUrl = 'http://192.168.118.237:8001';
+  static const String imageUrl = 'http://192.168.118.237:8002';
 
   static Future<http.Response> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/users/login');
