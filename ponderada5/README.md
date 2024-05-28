@@ -121,6 +121,9 @@ O Docker Compose não está funcional no momento. Para acessar os serviços do b
 
 ### Vídeo
 
+https://github.com/jeanroths/M10-ponderadas-prog/assets/99195775/cdd8e7a1-1a26-4b89-936a-2eb0f9bec26f
+
+
 
 
 
