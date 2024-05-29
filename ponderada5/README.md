@@ -99,7 +99,6 @@ O frontend é desenvolvido em Flutter utilizando a arquitetura MVC para separaç
 ### Services
 
 - **api_service.dart**: Serviço para integração com a API backend.
-- **local_notifications.dart**: Serviço para notificações locais.
 - **notification_service.dart**: Serviço para notificações.
 
 ### Views
